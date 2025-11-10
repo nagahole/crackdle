@@ -7,29 +7,35 @@ import { supabaseBrowser } from "@/lib/supabase-client";
 import { LoginScreen } from "./login-screen";
 import { Home } from "./home";
 
+// gates access on landing page based on supabase authentication state
 export function AuthGate() {
+
   const supabase = supabaseBrowser;
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // initial fetch of user authentication
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user ?? null);
       setLoading(false);
     });
 
+    // subscribe to supabase events to update accordingly based on any authentication changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
 
+    // cleanup
     return () => {
       subscription.unsubscribe();
     };
   }, [supabase]);
 
   if (loading) return <div>Loading…</div>;
+  // logged in
   if (!user) return <LoginScreen />;
 
   return <Home user={user} />;
