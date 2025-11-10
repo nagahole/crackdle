@@ -2,6 +2,7 @@
 "use client";
 import { supabaseBrowser } from "@/lib/supabase-client";
 import { Logo } from "./logo";
+import { Subtitle } from "./subtitle";
 
 export function LoginScreen() {
     const supabase = supabaseBrowser;
@@ -17,6 +18,7 @@ export function LoginScreen() {
     return (
         <main className="flex bg-black min-h-screen flex-col items-center justify-center gap-4">
             <Logo/>
+            <Subtitle/>
             <p className="text-sm text-white">
                 Log in to play 1v1 decryption races.
             </p>

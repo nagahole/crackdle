@@ -3,14 +3,16 @@
 import type { User } from "@supabase/supabase-js";
 import { supabaseBrowser } from "@/lib/supabase-client";
 import { Logo } from "./logo";
+import { Subtitle } from "./subtitle";
 
-export function FindGameScreen({ user }: { user: User; }) {
+export function Home({ user }: { user: User; }) {
 
     const supabase = supabaseBrowser;
 
     return (
         <main className="flex bg-black min-h-screen flex-col items-center justify-center gap-4">
             <Logo/>
+            <Subtitle/>
             <div className="text-sm text-gray-500">
                 Logged in as {user.email ?? user.id}
             </div>

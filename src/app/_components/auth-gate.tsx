@@ -5,7 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabaseBrowser } from "@/lib/supabase-client";
 
 import { LoginScreen } from "./login-screen";
-import { FindGameScreen } from "./find-game-screen";
+import { Home } from "./home";
 
 export function AuthGate() {
   const supabase = supabaseBrowser;
@@ -32,5 +32,5 @@ export function AuthGate() {
   if (loading) return <div>Loading…</div>;
   if (!user) return <LoginScreen />;
 
-  return <FindGameScreen user={user} />;
+  return <Home user={user} />;
 }
