@@ -1,4 +1,3 @@
-// src/app/_components/auth-gate.tsx
 "use client";
 import { supabaseBrowser } from "@/lib/supabase-client";
 import { Logo } from "./logo";
