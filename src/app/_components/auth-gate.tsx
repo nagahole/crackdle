@@ -6,6 +6,7 @@ import { supabaseBrowser } from "@/lib/supabase-client";
 
 import { LoginScreen } from "./login-screen";
 import { Home } from "./home";
+import { LoadingScreen } from "./loading-screen";
 
 // gates access on landing page based on supabase authentication state
 export function AuthGate() {
@@ -34,9 +35,8 @@ export function AuthGate() {
     };
   }, [supabase]);
 
-  if (loading) return <div>Loading…</div>;
-  // logged in
-  if (!user) return <LoginScreen />;
+  if (loading) return <LoadingScreen/>
+  if (!user) return <LoginScreen/>;
 
   return <Home user={user} />;
 }
