@@ -4,10 +4,32 @@ import React, { useCallback, useState, useRef, useEffect } from "react";
 import { type LetterProps, LetterStatus } from "@/app/_components/letter/types";
 import { Letter } from "@/app/_components/letter/letter";
 import { Toolbox } from "../_components/toolbox";
+import { Textarea } from "../_components/textarea/textarea";
 
 
 // Replace with randomised key
 const KEY = "RNDKEY";
+
+// 
+const plaintext = `I‘m announcing our final opperation! All Troops, line up! We 
+will be doing a cavalry charge. Our goal: To rush the Beast Titan. Of course, 
+we‘ll be making ourselves ideal targets. So we‘ll be wait until he‘s ready to 
+throw and fire our smoke signals together. That should reduce his accuracy somewhat. 
+While we‘re acting as a decoy Captain Levi will kill the Beast Titan. That is our 
+plan. Standing and waiting just means we‘ll be showered by more boulders. Get 
+ready on the double! Cadet: Are we all… heading… to our deaths? Yes. Cadet: If
+ we‘re gonna die anyways, you‘re saying it‘s better… if we die fighting? Yes. 
+ Wait… if we‘re gonna die anyways, no matter how we die, even if it‘s disobeying 
+ orders, it all means nothing, right? You‘re precisely right. It‘s all meaningless. 
+ No matter what dreams or hopes you had… No matter how blessed a life you‘ve lived… 
+ It‘s all the same if you‘re shattered by rocks. Everyone will day someday. Does 
+ that mean life is meaningless? Was there even any meaning in our being born? 
+ Would you say that to our fallen comrades? Their lifes… Were they meaningless? 
+ No they weren‘t! It‘s us who gives meaning to our comrade‘s lives! The brave 
+ fallen! The anguished fallen! The ones who will remember them… are us, the living! 
+ We die trusting the living who follow to find meaning in our lives! That is the 
+ sole method in which we can rebel against this cruel world! My soldiers, rage! 
+ My soldiers, scream! My soldiers, fight!`
 
 type LogLine = { text: string; type: "user" | "correct" | "partial" | "error" | "input" };
 
@@ -158,13 +180,11 @@ export default function TestPage() {
 
         {/* Right panel: ciphertext panel */}
         <div className="w-80 bg-zinc-900 p-4 overflow-auto text-zinc-400 text-sm select-text">
-          <div className="whitespace-pre-wrap">
-            {/* Placeholder ciphertext text */}
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-          </div>
+          <Textarea 
+            keyArray={KEY} 
+            letters={letters} 
+            plainText={plaintext}            
+          />
         </div>
       </div>
 
