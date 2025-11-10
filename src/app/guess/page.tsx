@@ -1,24 +1,23 @@
 'use client';
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { type LetterProps, LetterStatus } from "@/app/_components/letter/types";
-import { Letter } from "@/app/_components/letter/letter";
-import { Toolbox } from "../_components/toolbox";
+import { Toolbox } from "./_components/toolbox";
 
 
 // Replace with randomised key
 const KEY = "RNDKEY";
+
+// Ciphertext to pass to toolbox
+const CIPHERTEXT = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`;
 
 type LogLine = { text: string; type: "user" | "correct" | "partial" | "error" | "input" };
 
 export default function TestPage() {
 
   const keyArray = KEY.split("");
-
-  // Current status of letters
-  const [letters, setLetters] = useState<LetterProps[]>(
-    keyArray.map((ch) => ({ letter: ch, status: LetterStatus.DEFAULT }))
-  );
 
   // Log lines for terminal area
   const [logLines, setLogLines] = useState<LogLine[]>([{ text: ">", type: "input" }]);
@@ -59,18 +58,6 @@ export default function TestPage() {
       return;
     }
 
-    // Update the status of each letter based on the user's guess
-    setLetters((prev) =>
-      prev.map((cell, idx) => ({
-        letter: cell.letter,
-        status:
-          guessChars[idx] === cell.letter
-            ? LetterStatus.CORRECT
-            : guessChars.includes(cell.letter)
-            ? LetterStatus.PARTIAL
-            : LetterStatus.DEFAULT,
-      }))
-    );
 
     // Determine feedback message and type
     let correctCount = 0;
@@ -134,36 +121,15 @@ export default function TestPage() {
   return (
     <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-300 font-mono">
 
-      {/* Top area: flex row with three panels */}
+      {/* Top area: flex row with toolbox and ciphertext panel */}
       <div className="flex flex-row flex-1 border-b border-zinc-800">
-
-        {/* Left panel: fixed width with Toolbox */}
-        <div className="w-64 bg-zinc-900 border-r border-zinc-800 p-4 flex flex-col">
-          <Toolbox />
-        </div>
-
-        {/* Center panel: expanded tool with letter board at top */}
-        <div className="flex-1 bg-zinc-900 border-r border-zinc-800 p-6 flex flex-col">
-          {/* Letter board */}
-          <div className="flex flex-row gap-3 mb-6 justify-center">
-            {letters.map((l, i) => (
-              <Letter key={i} letter={l.letter} status={l.status} />
-            ))}
-          </div>
-          {/* Expanded tool placeholder */}
-          <div className="flex-1 border border-zinc-800 rounded-md bg-zinc-900 flex items-center justify-center text-zinc-500 italic">
-            Expanded tool placeholder
-          </div>
-        </div>
+        {/* Toolbox component (contains left panel with tools and center panel with expanded area) */}
+        <Toolbox ciphertext={CIPHERTEXT} />
 
         {/* Right panel: ciphertext panel */}
         <div className="w-80 bg-zinc-900 p-4 overflow-auto text-zinc-400 text-sm select-text">
           <div className="whitespace-pre-wrap">
-            {/* Placeholder ciphertext text */}
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            {CIPHERTEXT}
           </div>
         </div>
       </div>
