@@ -17,6 +17,8 @@ type LogLine = { text: string; type: "user" | "correct" | "partial" | "error" | 
 
 export default function TestPage() {
 
+  const [isFocused, setIsFocused] = useState(false);
+
   const keyArray = KEY.split("");
 
   // Log lines for terminal area
@@ -26,6 +28,7 @@ export default function TestPage() {
   const [currentInput, setCurrentInput] = useState("");
 
   const logEndRef = useRef<HTMLDivElement>(null);
+  const terminalRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when new log line added or input changes
   useEffect(() => {
@@ -89,34 +92,28 @@ export default function TestPage() {
 
   }, [keyArray]);
 
-  // Global keypress handler for terminal input
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Backspace") {
-        e.preventDefault();
-        setCurrentInput((prev) => prev.slice(0, -1));
-      } else if (e.key === "Enter") {
-        e.preventDefault();
-        if (currentInput.trim().length > 0) {
-          handleGuess(currentInput.trim().toUpperCase());
-          setCurrentInput("");
-        } else {
-          // If enter pressed on empty input, just add a new prompt line
-          setLogLines((prev) => [
-            ...prev.slice(0, -1),
-            { text: `>`, type: "user" },
-            { text: ">", type: "input" }
-          ]);
-        }
-      } else if (e.key.length === 1 && /^[a-zA-Z]$/.test(e.key)) {
-        e.preventDefault();
-        setCurrentInput((prev) => (prev + e.key.toUpperCase()).slice(0, KEY.length));
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      setCurrentInput((prev) => prev.slice(0, -1));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (currentInput.trim().length > 0) {
+        handleGuess(currentInput.trim().toUpperCase());
+        setCurrentInput("");
+      } else {
+        // If enter pressed on empty input, just add a new prompt line
+        setLogLines((prev) => [
+          ...prev.slice(0, -1),
+          { text: `>`, type: "user" },
+          { text: ">", type: "input" }
+        ]);
       }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentInput, handleGuess]);
+    } else if (e.key.length === 1 && /^[a-zA-Z]$/.test(e.key)) {
+      e.preventDefault();
+      setCurrentInput((prev) => (prev + e.key.toUpperCase()).slice(0, KEY.length));
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-300 font-mono">
@@ -135,7 +132,15 @@ export default function TestPage() {
       </div>
 
       {/* Bottom area: terminal-like guess section */}
-      <div className="bg-zinc-900 border-t border-zinc-800 p-4 flex flex-col h-64 text-xs leading-tight">
+      <div
+        ref={terminalRef}
+        tabIndex={0}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        onClick={() => terminalRef.current?.focus()}
+        onKeyDown={handleKeyDown}
+        className="bg-zinc-900 border-t border-zinc-800 p-4 flex flex-col h-64 text-xs leading-tight"
+      >
 
         {/* Scrollable log area */}
         <div className="flex-1 overflow-y-auto mb-3 px-2 font-mono">
@@ -152,7 +157,7 @@ export default function TestPage() {
                 <div key={idx} className={className}>
                   <span>{line.text} </span>
                   <span>{currentInput}</span>
-                  <span className="blink" />
+                  {isFocused && <span className="blink" />}
                 </div>
               );
             }
