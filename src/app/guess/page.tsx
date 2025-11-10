@@ -1,75 +1,86 @@
+// app/test/TestPage.tsx
 'use client';
 
-import { Letter } from "@/app/_components/letter";
-import { useState } from "react";
+import React, { useCallback, useState } from "react";
+import { type LetterProps, LetterStatus } from "@/app/_components/letter/types";
+import { Letter } from "@/app/_components/letter/letter";
+
+
+// Replace with randomised key 
+const KEY = "RNDKEY";
 
 export default function TestPage() {
 
+  const keyArray = KEY.split("");
 
-    const LetterStatus = {
-        CORRECT: "correct",
-        PARTIAL: "partial",
-        DEFAULT: "default",
-    } as const;
+  // Users gues
+  const [guess, setGuess] = useState("");
 
-    type LetterStatus = typeof LetterStatus[keyof typeof LetterStatus];
+  // Current status of letters
+  const [letters, setLetters] = useState<LetterProps[]>(
+    keyArray.map((ch) => ({ letter: ch, status: LetterStatus.DEFAULT }))
+  );
 
-    interface LetterProps {
-        letter: string;
-        status: LetterStatus;
+  // Helper function to get each character from user guess
+  const getGuessChars = (value: string) => value.split("");
+
+  // When user presses enter or guess
+  const handleGuess = useCallback(() => {
+
+    // Splits the guess
+    const guessChars = getGuessChars(guess);
+
+    // Show error message if the length doesn't match up 
+    if (guessChars.length !== KEY.length) {
+      alert("Doesn't match the size of the key");
+      return;
     }
 
-
-
-    // Replace with randomisers later
-    const key = "RNDKEY";
-    const keyArray = key.split("");
-
-    const [guess, setGuess] = useState("");
-
-    const [letters, setLetters] = useState<LetterProps[]>(
-        keyArray.map(letter => ({
-            letter,
-            status: "correct"
-        }))
+    // Update the status of each letter based on the user's guess
+    setLetters((prev) =>
+      prev.map((cell, idx) => ({
+        letter: cell.letter,
+        status:
+          guessChars[idx] === cell.letter
+            ? LetterStatus.CORRECT
+            : guessChars.includes(cell.letter)
+            ? LetterStatus.PARTIAL
+            : LetterStatus.DEFAULT,
+      }))
     );
 
+    setGuess("");
+  }, [guess]);
 
-    const handleGuess = () => {
-        console.log("User guess:", guess);
-        
-        const guessSplit = guess.split("");
+  return (
+    <div className="flex flex-col gap-5 items-center justify-center min-h-screen bg-red-500 border-2 border-red-500 rounded-lg">
+      
+      {/* Letter board */}
+      <div className="flex flex-row gap-5 items-center justify-center">
+        {letters.map((l, i) => (
+          <Letter key={i} letter={l.letter} status={l.status} />
+        ))}
+      </div>
 
-        setLetters(prev => prev.map(letter => {}))
+        {/* Guess box */}
+      <div className="flex flex-row gap-5 items-center justify-center">
+        <input
+          type="text"
+          value={guess}
+          onChange={(e) => setGuess(e.target.value.toUpperCase())}
+          className="w-50 h-10 bg-white rounded-md text-black px-5"
+          placeholder="Enter your guess"
+          aria-label="Guess input"
+        />
 
-        setGuess(""); // clears input after handling
-    };
-
-    return (
-        <div className="flex flex-col gap-5 items-center justify-center min-h-screen bg-red-500 border-2 border-red-500 rounded-lg">
-
-            <div className="flex flex-row gap-5 items-center justify-center">
-                {letters.map((l, i) => (
-                    <Letter key={i} letter={l.letter} status={l.status} />
-                ))}
-            </div>
-
-            <div className="flex flex-row gap-5 items-center justify-center">
-                <input
-                    type="text"
-                    value={guess}
-                    onChange={(e) => setGuess(e.target.value)}
-                    className="w-50 h-10 bg-white rounded-md text-black px-5"
-                    placeholder="Enter your guess"
-                />
-
-                <button
-                    onClick={handleGuess}
-                    className="w-20 h-10 bg-white rounded-md text-black"
-                >
-                    Guess
-                </button>
-            </div>
-        </div>
-    );
+        <button
+          onClick={handleGuess}
+          className="w-20 h-10 bg-white rounded-md text-black"
+          aria-label="Submit guess"
+        >
+          Guess
+        </button>
+      </div>
+    </div>
+  );
 }
