@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, type ComponentType } from "react";
-import { type LetterProps, LetterStatus } from "@/app/_components/letter/types";
-import { Letter } from "@/app/_components/letter/letter";
 import { CaeserCipher } from "./tools/caeser-cipher";
 
 export interface ToolProps {
@@ -13,7 +11,7 @@ type ToolboxItem = {
   name: string;
   shortcut?: string;
   description?: string;
-  component?: ComponentType;
+  component?: ComponentType<ToolProps>;
 };
 
 const TOOLBOX_ITEMS: ToolboxItem[] = [
@@ -122,7 +120,7 @@ export function Toolbox({ ciphertext }: ToolboxProps) {
               key={`${selectedTool.name}-${animTick}`}
               className="w-full max-w-md rounded-xl border border-emerald-500/80 bg-zinc-900/90 p-8 flex items-center justify-center shadow-lg shadow-emerald-500/20 tool-card-pop"
             >
-              {selectedTool.component ? <selectedTool.component/> : null }
+              {selectedTool.component ? <selectedTool.component cipherText={ciphertext} /> : null }
             </section>
           ) : (
             <section className="w-full max-w-md rounded-xl border border-dashed border-zinc-800 bg-zinc-900/40 p-8 flex items-center justify-center transform transition-all duration-300 ease-out scale-95 opacity-80">
