@@ -1,6 +1,7 @@
 // src/app/_components/auth-gate.tsx
 "use client";
-import { supabaseBrowser } from "@/lib/supabaseClient";
+import { supabaseBrowser } from "@/lib/supabase-client";
+import { Logo } from "./logo";
 
 export function LoginScreen() {
     const supabase = supabaseBrowser;
@@ -15,7 +16,7 @@ export function LoginScreen() {
 
     return (
         <main className="flex bg-black min-h-screen flex-col items-center justify-center gap-4">
-            <h1 className="text-3xl text-white font-bold">crack<span className="text-gray-800">(ed)</span>dle</h1>
+            <Logo/>
             <p className="text-sm text-white">
                 Log in to play 1v1 decryption races.
             </p>

@@ -1,7 +1,8 @@
 // src/app/_components/auth-gate.tsx
 "use client";
 import type { User } from "@supabase/supabase-js";
-import { supabaseBrowser } from "@/lib/supabaseClient";
+import { supabaseBrowser } from "@/lib/supabase-client";
+import { Logo } from "./logo";
 
 export function FindGameScreen({ user }: { user: User; }) {
 
@@ -9,6 +10,7 @@ export function FindGameScreen({ user }: { user: User; }) {
 
     return (
         <main className="flex bg-black min-h-screen flex-col items-center justify-center gap-4">
+            <Logo/>
             <div className="text-sm text-gray-500">
                 Logged in as {user.email ?? user.id}
             </div>

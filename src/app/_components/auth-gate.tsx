@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import { supabaseBrowser } from "@/lib/supabaseClient";
+import { supabaseBrowser } from "@/lib/supabase-client";
 
-import { LoginScreen } from "./LoginScreen";
-import { FindGameScreen } from "./FindGameScreen";
+import { LoginScreen } from "./login-screen";
+import { FindGameScreen } from "./find-game-screen";
 
 export function AuthGate() {
   const supabase = supabaseBrowser;
