@@ -6,9 +6,10 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { createClient } from "@supabase/supabase-js";
 
 /**
  * 1. CONTEXT
@@ -23,8 +24,77 @@ import { ZodError } from "zod";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  let session = null;
+  if (supabaseUrl && supabaseAnonKey) {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    
+    // Try to get token from authorization header first
+    const authHeader = opts.headers.get("authorization");
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "").trim();
+      if (token) {
+        try {
+          const { data, error } = await supabase.auth.getUser(token);
+          if (error) {
+            console.error("Error validating token:", error.message);
+          }
+          if (data?.user) {
+            session = { user: data.user };
+          }
+        } catch (err) {
+          console.error("Exception validating token:", err);
+        }
+      }
+    }
+    
+    // Fallback: try to get session from cookies (for server-side requests)
+    if (!session) {
+      // Supabase stores the session in cookies with the pattern: sb-<project-ref>-auth-token
+      const cookieHeader = opts.headers.get("cookie");
+      if (cookieHeader) {
+        // Extract the access token from cookies if available
+        // This is a simplified approach - in production you might want to use a proper cookie parser
+        const cookies = cookieHeader.split(";").reduce((acc, cookie) => {
+          const [key, value] = cookie.trim().split("=");
+          acc[key] = value;
+          return acc;
+        }, {} as Record<string, string>);
+        
+        // Look for Supabase auth token in cookies
+        const authTokenKey = Object.keys(cookies).find(key => 
+          key.includes("auth-token") || key.includes("access_token")
+        );
+        
+        if (authTokenKey) {
+          try {
+            const tokenValue = decodeURIComponent(cookies[authTokenKey]);
+            // The token might be JSON encoded, try to parse it
+            const parsed = JSON.parse(tokenValue);
+            const token = parsed?.access_token || parsed;
+            if (token) {
+              const { data } = await supabase.auth.getUser(token);
+              if (data?.user) {
+                session = { user: data.user };
+              }
+            }
+          } catch {
+            // If parsing fails, try using the value directly as a token
+            const { data } = await supabase.auth.getUser(cookies[authTokenKey]);
+            if (data?.user) {
+              session = { user: data.user };
+            }
+          }
+        }
+      }
+    }
+  }
+
   return {
     ...opts,
+    session,
   };
 };
 
@@ -101,3 +171,23 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+
+/**
+ * Protected (authenticated) procedure
+ *
+ * If you want a query or mutation to ONLY be accessible to logged in users, use this. It verifies
+ * the session is valid and guarantees `ctx.session.user` is not null.
+ *
+ * @see https://trpc.io/docs/procedures
+ */
+export const protectedProcedure = t.procedure.use(timingMiddleware).use(async ({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});

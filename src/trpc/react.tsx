@@ -6,6 +6,7 @@ import { createTRPCReact } from "@trpc/react-query";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import { useState } from "react";
 import SuperJSON from "superjson";
+import { supabaseBrowser } from "@/lib/supabase-client";
 
 import { type AppRouter } from "@/server/api/root";
 import { createQueryClient } from "./query-client";
@@ -52,9 +53,34 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
         httpBatchStreamLink({
           transformer: SuperJSON,
           url: getBaseUrl() + "/api/trpc",
-          headers: () => {
+          async headers() {
             const headers = new Headers();
             headers.set("x-trpc-source", "nextjs-react");
+            
+            // Get the Supabase session and send the access token
+            // This is called on each request, so we get the current session
+            try {
+              const { data: { session }, error } = await supabaseBrowser.auth.getSession();
+              if (error) {
+                console.error("Error getting session:", error);
+              }
+              if (session?.access_token) {
+                headers.set("authorization", `Bearer ${session.access_token}`);
+              } else {
+                // Fallback: try getUser() if getSession() doesn't work
+                const { data: { user } } = await supabaseBrowser.auth.getUser();
+                if (user) {
+                  // Try to get the session again
+                  const { data: { session: retrySession } } = await supabaseBrowser.auth.getSession();
+                  if (retrySession?.access_token) {
+                    headers.set("authorization", `Bearer ${retrySession.access_token}`);
+                  }
+                }
+              }
+            } catch (err) {
+              console.error("Error in headers function:", err);
+            }
+            
             return headers;
           },
         }),
