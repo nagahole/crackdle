@@ -1,5 +1,15 @@
 export function Logo() {
     return (
-        <h1 className="text-3xl text-white font-bold">crack<span className="text-gray-800">(ed)</span>dle</h1>
+        <h1 className="text-6xl text-white font-bold">
+            
+            crack
+            
+            <span className="text-emerald-400/80">
+                &lt;ed&gt;
+            </span>
+            
+            dle
+
+            </h1>
     )
 }
