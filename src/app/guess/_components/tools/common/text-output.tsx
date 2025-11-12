@@ -10,7 +10,7 @@ export function TextOutput({ text }: TextOutputProps) {
       </div>
       <div className="flex-1">
         {text ? (
-          text
+          <div className="break-words break-all hyphens-auto">{text}</div>
         ) : (
           <span className="text-xs text-zinc-500">
             Output will appear here as you interact with the tool.

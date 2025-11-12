@@ -8,10 +8,13 @@ import { Toolbox } from "./_components/toolbox";
 const KEY = "RNDKEY";
 
 // Ciphertext to pass to toolbox
-const CIPHERTEXT = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`;
+const CIPHERTEXT = `Vviv ot ksqs lcfisfr orl yphvdfizk pbr vopsws cis cj Ixgwqz orl ttuom hs ahgsoc ogzghg hgs awjar, hgsc ksbs khhl ck. Ivsx uyijssr niv nagsg zg am kasds orl lwsm gspxws ig afmvy sckm dvmq xb hgs pwfv rovb apwc ks bveaws ciq aiidh wbrhiiv dt uqcaqfv hvda. Evv aohdf, apwc ks cwh jwrcad tezetfg, svig yjofcsh wmg twdzha scr kzhgpws cjdf scj wsfcg. Xpwn zcnyil suhsq iw, ifs ks kcssws otssv bzta. Zzhiz kiwzk, hlmq hvoqsh wmg vclsw ifs ciq teuaawsr klmf ls ptwpb ldkbr orl uxhwdg evv hiptffa. Gu ozk hlm scwazzw bzph hqozmdasr svi tgcu fnoh bzgcifv xpw pusr kmbz jg, rnuw idlomr ketctr qkcwmki.
+
+Obc hlwkt hvzh vmepwb zfi alxzz vwxp mh bcv, vizw ph hgs ivv dt hgs awjar. Omr xpwgs azm fm fd zov zinl tlqddx ezph mni qict wh, aix qx nci rhiid bm rnu, cwm rob zh pmshh swdikl bs hn qsuw pthdf cwm. Xt kd'fi vgi zcxop bg ivs svmvyh ks kczm, owoh'r hlm hdwbs? Hlil'h zwjs rwl wojhbk i etacqm. Xpsi'g kgsr ew hhco piqfv vilor.
+
+Bzph'g z ymvv dt rdoxp, wksb ht cwm zsso pvmsivwmu.
+
+Ww. Sqcis hlil. Iifmg scl ivs vcvtv swrm'h ivv lwhg o fifv. Cf ligp gu o kgwqxwg. Rcm'h kml bs kqcro: lwsfd kizw qobfg, wwet pwf, gsuw awhszi, jmi hvzh aik tofkm sv, tttcqs tmgezs fcx bzt rfhtx wx lvos kea zpdddbmvy.`;
 
 type LogLine = { text: string; type: "user" | "correct" | "partial" | "error" | "input" };
 
@@ -116,10 +119,10 @@ export default function TestPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-300 font-mono">
+    <div className="flex flex-col h-screen w-screen bg-zinc-950 text-zinc-300 font-mono">
 
       {/* Top area: flex row with toolbox and ciphertext panel */}
-      <div className="flex flex-row flex-1 border-b border-zinc-800">
+      <div className="flex flex-row flex-1 min-h-0 border-b border-zinc-800">
         {/* Toolbox component (contains left panel with tools and center panel with expanded area) */}
         <Toolbox ciphertext={CIPHERTEXT} />
 
