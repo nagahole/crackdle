@@ -38,12 +38,12 @@ export function Lobby({ roomId, roomCode }: { roomId: string; roomCode: string }
 
   // list players
   const playersQuery = api.room.listPlayers.useQuery(
-    { roomId }, 
-    { 
-      refetchInterval: 5000, // fallback polling
-      enabled: !!roomId, // only run if roomId is present
-      refetchOnMount: true, // always refetch when component mounts
-      refetchOnWindowFocus: true, // refetch when window regains focus
+    { roomId },
+    {
+      refetchInterval: 5000,
+      enabled: !!roomId,
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
     }
   );
 
@@ -51,10 +51,8 @@ export function Lobby({ roomId, roomCode }: { roomId: string; roomCode: string }
     void playersQuery.refetch();
   }, [playersQuery]);
 
-  // Refetch players immediately when roomId changes
   useEffect(() => {
     if (roomId) {
-      // Small delay to ensure the join mutation has completed
       const timeoutId = setTimeout(() => {
         void playersQuery.refetch();
       }, 500);
@@ -64,14 +62,12 @@ export function Lobby({ roomId, roomCode }: { roomId: string; roomCode: string }
 
   useEffect(() => {
     if (!roomId) return;
-    // subscribe to postgres_changes via Supabase client
     const channel = supabaseBrowser
       .channel(`room:${roomId}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "room_players", filter: `room_id=eq.${roomId}` },
         (payload) => {
-          // new player joined
           console.log("Player joined via realtime:", payload);
           refetchPlayers();
         }
@@ -87,9 +83,7 @@ export function Lobby({ roomId, roomCode }: { roomId: string; roomCode: string }
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "rooms", filter: `id=eq.${roomId}` },
         (payload) => {
-          // room status changed (start game etc.)
           console.log("room update", payload);
-          // example: if status => IN_PROGRESS navigate to /guess
           const newStatus = (payload.new as { status?: string })?.status;
           if (newStatus === "IN_PROGRESS") {
             void router.push(`/guess?room=${roomId}`);
@@ -103,11 +97,9 @@ export function Lobby({ roomId, roomCode }: { roomId: string; roomCode: string }
     };
   }, [roomId, router, refetchPlayers]);
 
-  // Get room and players data (before conditional returns to maintain hook order)
   const room = (roomQuery.data as RoomQueryOutput | undefined)?.room;
   const players = ((playersQuery.data as PlayersQueryOutput | undefined)?.players ?? []) as RoomPlayer[];
-  
-  // Debug logging - must be before conditional returns
+
   useEffect(() => {
     if (players.length > 0) {
       console.log("Players in lobby:", players.length, players);
@@ -116,54 +108,95 @@ export function Lobby({ roomId, roomCode }: { roomId: string; roomCode: string }
   }, [players, currentUserId]);
 
   if (roomQuery.isLoading || playersQuery.isLoading || roomQuery.isPending || playersQuery.isPending) {
-    return <div className="text-white">Loading lobby…</div>;
+    return (
+      <div className="text-white">
+        <div className="text-white">Loading lobby…</div>
+      </div>
+    );
   }
   if (roomQuery.error) {
-    return <div className="text-red-500">Error loading room: {roomQuery.error.message}</div>;
+    return <div className="text-red-400">Error loading room: {roomQuery.error.message}</div>;
   }
-  
-  // Check if current user is the host
-  const currentPlayer = players.find(p => p.user_id === currentUserId);
+
+  const currentPlayer = players.find((p) => p.user_id === currentUserId);
   const isHost = currentPlayer?.role === "HOST";
 
   return (
-    <div className="flex flex-col items-center gap-4 text-white">
+    <div className="flex flex-col items-center gap-6 text-white w-full">
       <div className="text-center">
-        <h2 className="text-3xl font-bold mb-2">Room {room?.code}</h2>
-        <p className="text-gray-400">Status: {room?.status ?? "WAITING"}</p>
+        <h2 className="text-3xl font-bold mb-2">
+          Room <span className="text-emerald-400">{room?.code}</span>
+        </h2>
+        <p className="text-sm text-zinc-400">Status: <span className="text-zinc-200">{room?.status ?? "WAITING"}</span></p>
       </div>
 
       <div className="w-full max-w-md">
-        <h3 className="text-xl font-semibold mb-3">Players ({players.length}/{room?.max_players ?? 2})</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold">Players <span className="text-zinc-400 text-sm">({players.length}/{room?.max_players ?? 2})</span></h3>
+          {isHost ? (
+            <span className="inline-flex items-center gap-2 text-emerald-400 text-sm font-medium">
+              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current"><path d="M12 2l2.9 6.26L21 9.27l-5 3.73L17.8 21 12 17.77 6.2 21 8 13 3 9.27l6.1-1.01L12 2z" /></svg>
+              Host
+            </span>
+          ) : (
+            <span className="text-sm text-zinc-500">Waiting...</span>
+          )}
+        </div>
+
         <ul className="space-y-2">
-          {players.map((p) => (
-            <li 
-              key={p.id} 
-              className={`p-3 rounded border-2 ${
-                p.user_id === currentUserId 
-                  ? "border-blue-500 bg-blue-500/20" 
-                  : "border-gray-600 bg-gray-800/50"
-              }`}
-            >
-              <div className="flex justify-between items-center">
-                <span>
-                  {p.role === "HOST" && "👑 "}
-                  {p.user_id === currentUserId ? "You" : `Player ${p.user_id.slice(0, 8)}`}
-                </span>
-                <span className="text-sm text-gray-400">{p.role}</span>
-              </div>
-            </li>
-          ))}
+          {players.map((p) => {
+            const isCurrent = p.user_id === currentUserId;
+            const isPlayerHost = p.role === "HOST";
+
+            return (
+              <li
+                key={p.id}
+                className={`p-3 rounded-md border ${
+                  isCurrent
+                    ? "border-emerald-400 bg-emerald-400/6"
+                    : isPlayerHost
+                    ? "border-emerald-500/60 bg-emerald-500/4"
+                    : "border-zinc-800 bg-zinc-900/40"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium ${
+                      isCurrent ? "bg-emerald-400 text-black" : "bg-zinc-800 text-zinc-200"
+                    }`}>
+                      {isPlayerHost ? "H" : isCurrent ? "You" : p.user_id.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium">
+                        {isCurrent ? "You" : `Player ${p.user_id.slice(0, 8)}`}
+                        {isPlayerHost && <span className="ml-2 text-emerald-300 text-sm">• host</span>}
+                      </div>
+                      <div className="text-xs text-zinc-400">{p.joined_at ? new Date(p.joined_at).toLocaleTimeString() : "Joined"}</div>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-sm text-zinc-300">{p.role}</div>
+                    <div className="text-xs text-zinc-500">{p.last_seen_at ? "online" : "offline"}</div>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
-      {isHost && room?.status !== "IN_PROGRESS" && (
-        <StartGameButton roomId={roomId} />
-      )}
+      <div className="flex flex-col items-center gap-3">
+        {isHost && room?.status !== "IN_PROGRESS" && (
+          <div className="w-full max-w-md">
+            <StartGameButton roomId={roomId} className="w-full" />
+          </div>
+        )}
 
-      {!isHost && (
-        <p className="text-gray-400 text-sm">Waiting for host to start the game...</p>
-      )}
+        {!isHost && (
+          <p className="text-sm text-zinc-400">Waiting for host to start the game…</p>
+        )}
+      </div>
     </div>
   );
 }
