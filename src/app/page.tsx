@@ -1,5 +1,5 @@
 import { api, HydrateClient } from "@/trpc/server";
-import { AuthGate } from "./_components/auth-gate";
+import { AuthGate } from "./_components/auth-components/auth-gate";
 
 export default async function Home() {
 
