@@ -2,6 +2,7 @@
 
 import React, { useState, type ComponentType } from "react";
 import { CaeserCipher } from "./tools/caeser-cipher";
+import { VigenereCipher } from "./tools/vigenere-cipher";
 import { ToolboxList } from "./toolbox-list";
 
 export interface ToolProps {
@@ -26,6 +27,7 @@ const TOOLBOX_ITEMS: ToolboxItem[] = [
     name: "Vigenère",
     shortcut: "V",
     description: "Keyword-based polyalphabetic",
+    component: VigenereCipher,
   },
   {
     name: "Frequency",

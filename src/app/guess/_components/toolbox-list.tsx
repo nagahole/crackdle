@@ -4,7 +4,7 @@ import type { ToolboxItem } from "./toolbox";
 interface ToolboxListProps {
   toolboxItems: ToolboxItem[];
   selectedTool: ToolboxItem | null;
-  setSelectedTool: Dispatch<SetStateAction<ToolboxItem>>;
+  setSelectedTool: Dispatch<SetStateAction<ToolboxItem | null>>;
 }
 
 

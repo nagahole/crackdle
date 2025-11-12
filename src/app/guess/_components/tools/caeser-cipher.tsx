@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ToolProps } from "../toolbox";
+import { TextOutput } from "./common/text-output";
 
 type Mode = "cipher" | "custom";
 
@@ -64,7 +65,7 @@ export function CaeserCipher({ cipherText }: ToolProps) {
   return (
     <div className="flex h-full w-full text-sm text-zinc-100">
       {/* Left side: controls */}
-      <div className="flex w-[320px] max-w-xs flex-col gap-4 bg-zinc-900 border-r border-zinc-800 p-4">
+      <div className="flex flex-1 w-[320px] max-w-xs flex-col gap-4 bg-zinc-900 border-r border-zinc-800 p-4">
         {/* Mode toggle */}
         <div className="flex rounded-lg bg-zinc-900 border border-zinc-800 overflow-hidden">
           <button
@@ -140,25 +141,7 @@ export function CaeserCipher({ cipherText }: ToolProps) {
         )}
       </div>
 
-      {/* Apply button in the middle */}
-      <div className="flex items-center justify-center">
-        <div
-          className="flex h-12 w-12 items-center justify-center rounded-full border-zinc-700 bg-zinc-900 shadow-sm text-emerald-300/80"
-        >
-          <span className="text-xl">&raquo;</span>
-        </div>
-      </div>
-
-      {/* Right side: output area */}
-      <div className="flex flex-1 items-stretch pr-4 pt-4 pb-4">
-        {output ? (
-            output
-        ) : (
-            <span className="text-xs text-zinc-500">
-            Shifted text will appear here after you apply the offset.
-            </span>
-        )}
-      </div>
+      <TextOutput text={output} />
     </div>
   );
 }
